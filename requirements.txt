@@ -1,4 +1,4 @@
 # Astro Runtime includes the following pre-installed providers packages: https://docs.astronomer.io/astro/runtime-image-architecture#provider-packages
-# Project-specific requirements: add the Databricks provider and pandas; remove unused packages.
-apache-airflow-providers-databricks
-pandas
+# Project-specific requirements: Databricks provider and pandas for data processing
+apache-airflow-providers-databricks>=7.0.0
+pandas>=1.5.0
