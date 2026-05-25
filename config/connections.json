@@ -1,0 +1,8 @@
+{
+  "databricks_default": {
+    "conn_type": "databricks",
+    "host": "https://your-workspace.cloud.databricks.com",
+    "password": "your-databricks-token",
+    "extra": "{\"existing_cluster_id\": \"your-databricks-cluster-id\"}"
+  }
+}

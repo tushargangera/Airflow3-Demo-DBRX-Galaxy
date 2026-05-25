@@ -1,0 +1,11 @@
+{
+  "galaxy_num_records": "10",
+  "galaxy_output_path": "/opt/airflow/include/output",
+  "galaxy_quality_min_rows": "5",
+  "galaxy_required_columns": "name,distance_from_milkyway,distance_from_solarsystem,type_of_galaxy,characteristics",
+  "databricks_cluster_id": "your-databricks-cluster-id",
+  "target_schema": "space_demo",
+  "raw_galaxy_table": "raw_galaxies",
+  "curated_galaxy_table": "curated_galaxies",
+  "galaxy_distance_threshold": "1000000"
+}
