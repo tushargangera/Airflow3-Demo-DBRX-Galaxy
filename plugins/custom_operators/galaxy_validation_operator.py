@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import List, Any
 
 from airflow.models.baseoperator import BaseOperator
-from airflow.utils.decorators import apply_defaults
 
 
 class GalaxyValidationOperator(BaseOperator):
@@ -15,7 +14,6 @@ class GalaxyValidationOperator(BaseOperator):
     implementation for local development.
     """
 
-    @apply_defaults
     def __init__(self, *, table_name: str, min_rows: int = 0, required_columns: List[str] | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.table_name = table_name
