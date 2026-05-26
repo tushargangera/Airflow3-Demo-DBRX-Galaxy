@@ -5,7 +5,7 @@ from datetime import datetime
 
 
 @dag(
-    dag_id="upstream_dag",
+    dag_id="4_upstream_dag",
     start_date=datetime(2025, 1, 1),
     schedule="@daily",
     catchup=False,

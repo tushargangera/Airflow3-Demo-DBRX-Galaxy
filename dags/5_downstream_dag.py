@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 @dag(
-    dag_id="downstream_dag",
+    dag_id="5_downstream_dag",
     start_date=datetime(2025, 1, 1),
     schedule="@daily",
     catchup=False,
@@ -15,7 +15,7 @@ from datetime import datetime
 def downstream_dag():
     wait_for_trigger = ExternalTaskSensor(
         task_id="wait_for_upstream",
-        external_dag_id="upstream_dag",
+        external_dag_id="4_upstream_dag",
         external_task_id="ready_to_trigger",
         mode="reschedule",
         poke_interval=60,

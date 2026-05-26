@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 @dag(
-    dag_id="xcom_example_dag",
+    dag_id="2_xcom_example_dag",
     start_date=datetime(2025, 1, 1),
     schedule="@daily",
     catchup=False,
