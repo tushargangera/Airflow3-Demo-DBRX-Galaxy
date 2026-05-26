@@ -11,8 +11,8 @@ from datetime import datetime
 )
 def hello_world():
     @task
-    def say_hello():
-        print("Hello, Airflow 3!")
+    def say_hello() -> str:
+        return "Hello, Airflow 3!"
 
     say_hello()
 

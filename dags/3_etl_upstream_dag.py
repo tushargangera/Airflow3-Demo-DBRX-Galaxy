@@ -1,15 +1,16 @@
 from airflow.sdk import dag, task
+from airflow.providers.standard.operators.trigger_dagrun import TriggerDagRunOperator
 from datetime import datetime
 
 
 @dag(
-    dag_id="6_fan_out_fan_in_etl_dag",
+    dag_id="3_etl_upstream_dag",
     start_date=datetime(2025, 1, 1),
     schedule="@daily",
     catchup=False,
-    tags=["example", "etl", "fan_out_fan_in"],
+    tags=["example", "etl", "consolidation", "fan_out_fan_in"],
 )
-def fan_out_fan_in_etl():
+def etl_data_consolidation():
     """
     ETL Pipeline with Fan-Out/Fan-In Pattern
     
@@ -75,10 +76,17 @@ def fan_out_fan_in_etl():
     
     # Continue pipeline: Transform and Load
     transformed = transform_data(consolidated)
-    load_warehouse(transformed)
+    loaded = load_warehouse(transformed)
+
+    trigger_downstream_dag = TriggerDagRunOperator(
+        task_id="trigger_downstream_dag",
+        trigger_dag_id="4_downstream_dag",
+        wait_for_completion=False,
+    )
+    loaded >> trigger_downstream_dag
     
     # Set start dependency
     start >> [mysql_data, postgres_data, api_data]
 
 
-fan_out_fan_in_etl = fan_out_fan_in_etl()
+dag = etl_data_consolidation()

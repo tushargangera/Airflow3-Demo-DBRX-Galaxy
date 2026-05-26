@@ -1,16 +1,15 @@
-from airflow.sdk import dag, task
-from airflow.models import Variable
+from airflow.sdk import dag, task, Variable
 from datetime import datetime
 
 
 @dag(
-    dag_id="4_upstream_dag",
+    dag_id="4_downstream_dag",
     start_date=datetime(2025, 1, 1),
     schedule="@daily",
     catchup=False,
     tags=["example", "dag_dependency"],
 )
-def upstream_dag():
+def downstream_dag():
     @task
     def set_shared_variable():
         Variable.set("dag_dependency_message", "Hello from upstream dag")
@@ -25,4 +24,4 @@ def upstream_dag():
     start >> ready
 
 
-upstream_dag = upstream_dag()
+dag = downstream_dag()
