@@ -1,4 +1,5 @@
-from airflow.decorators import dag, task
+from airflow.sdk.dag import dag
+from airflow.sdk.task import task
 from airflow.models import Variable
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from datetime import datetime
@@ -30,7 +31,7 @@ def dag_dependency_trigger():
     )
 
 
-dag = dag_dependency_trigger()
+dag_dependency_trigger_dag = dag_dependency_trigger()
 
 
 @dag(
@@ -49,4 +50,4 @@ def dag_dependency_target():
     read_shared_variable()
 
 
-dag_target = dag_dependency_target()
+dag_dependency_target_dag = dag_dependency_target()
