@@ -1,6 +1,6 @@
 from airflow.sdk import dag, task, Variable
 from airflow.hooks.base import BaseHook
-from airflow.providers.databricks.hooks.databricks import DatabricksHook
+from airflow.sdk.bases.hook.BaseHook import DatabricksHook
 from datetime import datetime
 from include.data.galaxy_api import get_galaxy_data
 
