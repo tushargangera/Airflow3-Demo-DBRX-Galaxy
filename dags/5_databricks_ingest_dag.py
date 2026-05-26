@@ -52,7 +52,7 @@ def databricks_ingest():
 
     @task
     def ingest_galaxy_data():
-        table = Variable.get("databricks_galaxy_table", default="galaxy_data")
+        table = Variable.get("databricks_galaxy_table", default="airflow3demo.bronze.b_galaxy")
         rows_to_ingest = int(Variable.get("databricks_galaxy_rows", default="10"))
 
         galaxy_df = get_galaxy_data(rows_to_ingest)
