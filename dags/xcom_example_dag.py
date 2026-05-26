@@ -12,12 +12,16 @@ from datetime import datetime
 )
 def xcom_example():
     @task
-    def push_value():
+    def push_value(ti=None):
+        # push an explicit key/value pair to XCom
+        ti.xcom_push(key="my_key", value="airflow-3-xcom-value")
         return "airflow-3-xcom-value"
 
     @task
-    def pull_value(value: str):
-        print(f"Pulled from XCom: {value}")
+    def pull_value(dummy_value: str, ti=None):
+        # pull the value using the same key from the push task
+        pulled = ti.xcom_pull(task_ids="push_value", key="my_key")
+        print(f"Pulled from XCom (key=my_key): {pulled}")
 
     pull_value(push_value())
 
