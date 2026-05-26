@@ -19,8 +19,8 @@ def databricks_ingest():
     @task
     def ingest_to_databricks():
         """Ingest data into a Databricks table (SQL Warehouse)."""
-        table = Variable.get("databricks_ingest_table", default_var="demo_ingest_table")
-        rows = int(Variable.get("databricks_ingest_rows", default_var="1000"))
+        table = Variable.get("databricks_ingest_table", default="databricks_ingest_table")
+        rows = int(Variable.get("databricks_ingest_rows", default="1000"))
         sql = f"-- INSERT INTO {table} -- rows: {rows}"
 
         try:

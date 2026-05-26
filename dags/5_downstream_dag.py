@@ -1,6 +1,6 @@
 from airflow.sdk import dag, task
 from airflow.models import Variable
-from airflow.providers.standard.sensors.external_task.ExternalTaskSensor
+from airflow.providers.standard.sensors.external_task import ExternalTaskSensor
 from datetime import datetime
 
 
@@ -23,7 +23,7 @@ def downstream_dag():
 
     @task
     def read_shared_variable():
-        message = Variable.get("dag_dependency_message", default_var="No message found")
+        message = Variable.get("dag_dependency_message", default="No message found")
         print(f"Read from Airflow Variable: {message}")
 
     read_shared_variable_task = read_shared_variable()
