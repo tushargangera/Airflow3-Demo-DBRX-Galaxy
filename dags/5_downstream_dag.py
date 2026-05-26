@@ -1,6 +1,6 @@
 from airflow.sdk import dag, task
 from airflow.models import Variable
-from airflow.sensors.external_task import ExternalTaskSensor
+from airflow.providers.standard.sensors.external_task.ExternalTaskSensor
 from datetime import datetime
 
 
