@@ -1,4 +1,4 @@
-from airflow.sdk.dag import dag
+from airflow.decorators import dag
 from airflow.models import Variable
 from airflow.providers.databricks.operators.databricks import DatabricksSubmitRunOperator
 from datetime import datetime
