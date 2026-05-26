@@ -1,6 +1,5 @@
-from airflow.sdk import dag, task, Variable
-from airflow.hooks.base import BaseHook
-from airflow.providers.databricks.hooks.databricks import DatabricksHook
+from airflow.sdk import dag, task, Variable, BaseHook
+from airflow.providers.databricks.hooks.databricks_sql import DatabricksSqlHook
 from datetime import datetime
 from include.data.galaxy_api import get_galaxy_data
 
@@ -45,7 +44,9 @@ def databricks_ingest():
                 missing.append(f"{connection_id}: {exc}")
 
         if missing:
-            raise ValueError(f"Missing required Airflow connections: {', '.join(missing)}")
+            raise ValueError(
+                f"Missing required Airflow connections: {', '.join(missing)}"
+            )
 
         return "connections_validated"
 
@@ -69,7 +70,8 @@ def databricks_ingest():
         """
 
         values_sql = ",\n".join(
-            "(" + ", ".join(
+            "("
+            + ", ".join(
                 [
                     _sql_quote(record["name"]),
                     _sql_quote(record["distance_from_milkyway"]),
@@ -77,16 +79,27 @@ def databricks_ingest():
                     _sql_quote(record["type_of_galaxy"]),
                     _sql_quote(record["characteristics"]),
                 ]
-            ) + ")"
+            )
+            + ")"
             for record in galaxy_records
         )
 
-        hook = DatabricksHook(databricks_conn_id="databricks_default")
-        hook.run_query(create_table_sql)
+        # http_path (e.g. "/sql/1.0/warehouses/<warehouse-id>") or sql_endpoint_name
+        # must be supplied so the hook targets a SQL Warehouse. Pull from Airflow
+        # Variables so the warehouse can be swapped per environment without code changes.
+        http_path = Variable.get("databricks_http_path", default=None)
+        sql_endpoint_name = Variable.get("databricks_sql_endpoint_name", default=None)
+
+        hook = DatabricksSqlHook(
+            databricks_conn_id="databricks_default",
+            http_path=http_path,
+            sql_endpoint_name=sql_endpoint_name,
+        )
+        hook.run(create_table_sql)
 
         if galaxy_records:
             insert_sql = f"INSERT INTO {table} VALUES\n{values_sql}"
-            hook.run_query(insert_sql)
+            hook.run(insert_sql)
         else:
             print(f"No galaxy records to ingest into {table}.")
 
