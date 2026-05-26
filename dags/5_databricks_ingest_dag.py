@@ -81,11 +81,14 @@ def databricks_ingest():
             for record in galaxy_records
         )
 
-        insert_sql = f"INSERT INTO {table} VALUES\n{values_sql}"
-
         hook = DatabricksHook(databricks_conn_id="databricks_default")
         hook.run_query(create_table_sql)
-        hook.run_query(insert_sql)
+
+        if galaxy_records:
+            insert_sql = f"INSERT INTO {table} VALUES\n{values_sql}"
+            hook.run_query(insert_sql)
+        else:
+            print(f"No galaxy records to ingest into {table}.")
 
         result = {
             "table": table,

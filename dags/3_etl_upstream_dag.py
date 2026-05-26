@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 @dag(
-    dag_id="3_etl_data_consolidation_dag",
+    dag_id="3_etl_upstream_dag",
     start_date=datetime(2025, 1, 1),
     schedule="@daily",
     catchup=False,
@@ -78,15 +78,15 @@ def etl_data_consolidation():
     transformed = transform_data(consolidated)
     loaded = load_warehouse(transformed)
 
-    trigger_downstream = TriggerDagRunOperator(
+    trigger_downstream_dag = TriggerDagRunOperator(
         task_id="trigger_downstream_dag",
         trigger_dag_id="4_downstream_dag",
         wait_for_completion=False,
     )
-    loaded >> trigger_downstream
+    loaded >> trigger_downstream_dag
     
     # Set start dependency
     start >> [mysql_data, postgres_data, api_data]
 
 
-etl_data_consolidation = etl_data_consolidation()
+dag = etl_data_consolidation()
