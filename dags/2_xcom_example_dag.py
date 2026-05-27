@@ -13,7 +13,7 @@ default_args = {
 @dag(
     dag_id="2_xcom_example_dag",
     start_date=datetime(2025, 1, 1),
-    schedule="0 8 * * *",
+    schedule="0 8 * * 1-5", # At 08:00 on every day-of-week from Monday through Friday
     catchup=False,
     default_args=default_args,
     tags=["example", "xcom"],
