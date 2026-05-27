@@ -1,68 +1,93 @@
 # Airflow 3 DBRX Galaxy Demo
 
-This repository is an Astro/Airflow 3 demo project that walks through basic DAG
-patterns and a Databricks SQL ingest workflow. The Databricks example generates
-mock galaxy data with pandas and writes it into a Delta table through the
-Databricks Airflow provider.
+Short Airflow 3 demo project for explaining core Airflow concepts with a small
+Databricks SQL ingest example.
 
-## What is included
+## What This Demo Covers
 
-- `dags/1_hello_world_dag.py` - minimal TaskFlow DAG that returns a greeting.
-- `dags/2_xcom_example_dag.py` - pushes and pulls values through XCom.
-- `dags/3_etl_upstream_dag.py` - fan-out/fan-in ETL example that triggers another DAG.
-- `dags/4_downstream_dag.py` - downstream DAG used by the upstream trigger example.
-- `dags/5_databricks_ingest_dag.py` - validates Databricks connectivity and ingests galaxy data.
-- `include/custom_functions/galaxy_functions.py` - mock galaxy API/data generator.
-- `include/data/galaxy_api.py` - compatibility wrapper used by the Databricks DAG.
-- `config/variables.json` - sample Airflow variables.
-- `config/connections.json` - sample Airflow connections placeholder.
+- DAGs and TaskFlow API
+- Schedules, retries, and email alerts
+- XCom task communication
+- Airflow Variables
+- DAG-to-DAG triggering
+- Backfill
+- Airflow Connections
+- Databricks SQL ingest into a Delta table
 
-## Prerequisites
+## Project Files
 
-- Astro CLI
-- Docker Desktop or another Docker runtime supported by Astro
-- Databricks workspace access for the Databricks ingest DAG
-- A Databricks SQL Warehouse for table writes
+- `dags/1_hello_world_dag.py` - basic TaskFlow DAG. Runs daily at 5 AM.
+- `dags/2_xcom_example_dag.py` - XCom push, pull, and task return example. Runs weekdays at 8 AM.
+- `dags/3_etl_upstream_dag.py` - fan-out/fan-in ETL flow and downstream DAG trigger.
+- `dags/4_downstream_dag.py` - downstream DAG that writes an Airflow Variable.
+- `dags/5_databricks_ingest_dag.py` - validates Databricks connection and loads galaxy data.
+- `include/custom_functions/galaxy_functions.py` - mock galaxy data generator.
+- `include/data/galaxy_api.py` - wrapper used by the Databricks DAG.
+- `plugins/galaxy_sql_utils.py` - reusable SQL helper used by DAG 5.
+- `config/variables.json` - sample Airflow Variables.
+- `config/connections.json` - empty placeholder. Do not store secrets here.
+- `DEMO_FLOW.md` - presenter flow.
+- `DEMO_TRANSCRIPT.md` - read-aloud demo script.
 
-The project uses the Astro Runtime image in `Dockerfile` and installs the
-project-specific Python packages from `requirements.txt`.
+## Requirements
 
-## Quick start
+- A running Airflow 3 environment
+- Databricks workspace access for DAG 5
+- Databricks SQL Warehouse for DAG 5
 
-Start Airflow locally:
+## Run Locally
+
+Start your Airflow 3 environment with your preferred local setup.
+
+Validate DAG parsing:
 
 ```bash
-astro dev start
+airflow dags list
 ```
 
-Open the Airflow UI, then trigger any of the example DAGs manually. All DAGs are
-scheduled with `@daily`, use a `2025-01-01` start date, and have `catchup=False`
-so they are easy to run as demos.
-
-To validate that the DAG files parse in Astro:
+Import variables if you keep them in `config/variables.json`:
 
 ```bash
-astro dev parse
+airflow variables import config/variables.json
 ```
 
-## Databricks setup
+Open the Airflow UI and trigger the DAGs manually for the demo.
 
-The Databricks ingest DAG expects an Airflow connection named
-`databricks_default`.
+Before running DAG 5, confirm the Databricks variables listed below exist.
 
-Create that connection in Airflow with your Databricks workspace details and
-token. Do not commit personal access tokens to this repository.
+## DAG Settings
 
-The DAG also reads these Airflow variables:
+- All DAGs use `start_date=datetime(2025, 1, 1)`.
+- All DAGs use `catchup=False` for easier demos.
+- DAG 1 runs at `0 5 * * *`.
+- DAG 2 runs at `0 8 * * 1-5`.
+- DAG 1 and DAG 2 retry failed tasks twice with a 5-minute delay.
+- DAG 1 and DAG 2 email on failure and do not email on retry.
 
-| Variable | Required | Default | Purpose |
-| --- | --- | --- | --- |
-| `databricks_galaxy_table` | No | `galaxy_data` | Target Delta table name. Use a fully qualified name such as `catalog.schema.galaxy_data` when needed. |
-| `databricks_galaxy_rows` | No | `10` | Number of mock galaxy rows to ingest. Keep this between `1` and `20`. |
-| `databricks_http_path` | Use this or `databricks_sql_endpoint_name` | `None` | SQL Warehouse HTTP path, for example `/sql/1.0/warehouses/<warehouse-id>`. |
-| `databricks_sql_endpoint_name` | Use this or `databricks_http_path` | `None` | SQL Warehouse endpoint name. |
+Update the email addresses in the DAG files before using email alerts in a real
+environment.
 
-Example variable payload:
+## Databricks Setup
+
+DAG 5 expects an Airflow connection named:
+
+```text
+databricks_default
+```
+
+Create this connection in the Airflow UI with your Databricks workspace host and
+token. Do not commit tokens to this repository.
+
+DAG 5 reads these Airflow Variables:
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `databricks_galaxy_table` | Yes | Target Delta table, for example `catalog.schema.galaxy_data`. |
+| `databricks_galaxy_rows` | No | Number of mock rows to ingest. Default is `10`. |
+| `databricks_http_path` | Use this or endpoint name | SQL Warehouse HTTP path. |
+| `databricks_sql_endpoint_name` | Use this or HTTP path | SQL Warehouse endpoint name. |
+
+Example variables:
 
 ```json
 {
@@ -72,23 +97,25 @@ Example variable payload:
 }
 ```
 
-Import variables and connections through the Airflow UI, or use the Airflow CLI
-inside the running Astro environment.
+## Demo Order
 
-## Demo flow
+1. Run `1_hello_world_dag` to show a simple DAG and task log.
+2. Run `2_xcom_example_dag` to show XCom and task return values.
+3. Run `3_etl_upstream_dag` to show fan-out, fan-in, and DAG triggering.
+4. Open `4_downstream_dag` to show the triggered downstream run.
+5. Show Variables and Connections in the Airflow UI.
+6. Backfill `1_hello_world_dag` for a safe historical-run demo.
+7. Run `5_databricks_ingest_dag` after Databricks is configured.
 
-1. Run `1_hello_world_dag` to confirm the local Airflow environment is working.
-2. Run `2_xcom_example_dag` to inspect task return values and explicit XCom keys.
-3. Run `3_etl_upstream_dag` to see parallel extraction, consolidation,
-   transformation, loading, and a DAG-to-DAG trigger.
-4. Check `4_downstream_dag` after the upstream DAG runs.
-5. Configure Databricks and run `5_databricks_ingest_dag` to create and populate
-   the galaxy Delta table.
+Backfill example:
+
+```bash
+airflow backfill create --dag-id 1_hello_world_dag --from-date 2025-01-01 --to-date 2025-01-03 --reprocess-behavior none --max-active-runs 2
+```
 
 ## Notes
 
-- `config/connections.json` is intentionally empty so secrets are not stored in
-  source control.
-- The mock galaxy data source contains 20 records.
-- The Databricks DAG creates the target table if it does not already exist and
-  inserts the generated galaxy rows.
+- Use DAG 1 for backfill demos because it has no external side effects.
+- Do not backfill DAG 5 unless duplicate inserts are acceptable.
+- XCom is for small values only, not large datasets.
+- Keep credentials in Airflow Connections or a secrets backend.
