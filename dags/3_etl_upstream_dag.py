@@ -1,5 +1,5 @@
-from airflow.sdk import dag, task
-from airflow.providers.standard.operators.trigger_dagrun import TriggerDagRunOperator
+from airflow.sdk import dag, task # type: ignore
+from airflow.providers.standard.operators.trigger_dagrun import TriggerDagRunOperator # type: ignore
 from datetime import datetime
 
 

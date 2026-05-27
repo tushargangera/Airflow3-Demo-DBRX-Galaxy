@@ -1,4 +1,4 @@
-from airflow.sdk import dag, task, Variable
+from airflow.sdk import dag, task, Variable # type: ignore
 from datetime import datetime
 
 

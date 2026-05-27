@@ -1,5 +1,5 @@
-from airflow.sdk import dag, task, Variable, BaseHook
-from airflow.providers.databricks.hooks.databricks_sql import DatabricksSqlHook
+from airflow.sdk import dag, task, Variable, BaseHook # type: ignore
+from airflow.providers.databricks.hooks.databricks_sql import DatabricksSqlHook # type: ignore
 from datetime import datetime
 from include.data.galaxy_api import get_galaxy_data
 from plugins.galaxy_sql_utils import sql_quote
