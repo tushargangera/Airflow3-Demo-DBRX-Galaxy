@@ -2,17 +2,10 @@ from airflow.sdk import dag, task, Variable, BaseHook
 from airflow.providers.databricks.hooks.databricks_sql import DatabricksSqlHook
 from datetime import datetime
 from include.data.galaxy_api import get_galaxy_data
+from plugins.galaxy_sql_utils import sql_quote
 
 
 REQUIRED_CONNECTIONS = ["databricks_default"]
-
-
-def _sql_quote(value):
-    if value is None:
-        return "NULL"
-    if isinstance(value, str):
-        return "'" + value.replace("'", "''") + "'"
-    return str(value)
 
 
 @dag(
@@ -73,11 +66,11 @@ def databricks_ingest():
             "("
             + ", ".join(
                 [
-                    _sql_quote(record["name"]),
-                    _sql_quote(record["distance_from_milkyway"]),
-                    _sql_quote(record["distance_from_solarsystem"]),
-                    _sql_quote(record["type_of_galaxy"]),
-                    _sql_quote(record["characteristics"]),
+                    sql_quote(record["name"]),
+                    sql_quote(record["distance_from_milkyway"]),
+                    sql_quote(record["distance_from_solarsystem"]),
+                    sql_quote(record["type_of_galaxy"]),
+                    sql_quote(record["characteristics"]),
                 ]
             )
             + ")"
@@ -108,7 +101,7 @@ def databricks_ingest():
             "ingested_rows": len(galaxy_records),
             "generated_at": datetime.now().isoformat(),
         }
-        print(f"✓ Ingested galaxy JSON data into Databricks table: {result}")
+        print(f"Ingested galaxy JSON data into Databricks table: {result}")
         return result
 
     validated = validate_connections()
