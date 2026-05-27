@@ -1,12 +1,21 @@
 from airflow.sdk import dag, task
-from datetime import datetime
+from datetime import datetime, timedelta
 
+
+default_args = {
+    "email": ["tushar.gangera@oracle.com"],
+    "email_on_failure": True,
+    "email_on_retry": False,
+    "retries": 2,
+    "retry_delay": timedelta(minutes=5),
+}
 
 @dag(
     dag_id="2_xcom_example_dag",
     start_date=datetime(2025, 1, 1),
-    schedule="@daily",
+    schedule="0 8 * * *",
     catchup=False,
+    default_args=default_args,
     tags=["example", "xcom"],
 )
 def xcom_example():
